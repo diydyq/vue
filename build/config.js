@@ -165,6 +165,13 @@ const builds = {
     dest: resolve('packages/weex-template-compiler/build.js'),
     format: 'cjs',
     external: Object.keys(require('../packages/weex-template-compiler/package.json').dependencies)
+  },
+  'hap-factory': {
+    hap: true,
+    entry: resolve('hap/entry-runtime-factory.js'),
+    dest: resolve('packages/hap-vue-framework/factory.js'),
+    format: 'cjs',
+    plugins: [weexFactoryPlugin]
   }
 }
 
