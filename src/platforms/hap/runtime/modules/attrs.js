@@ -1,6 +1,9 @@
 /* @flow */
 
 import { extend } from 'shared/util'
+import {
+  setAttribute
+} from '../node-ops'
 
 function updateAttrs (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   if (!oldVnode.data.attrs && !vnode.data.attrs) {
@@ -19,12 +22,14 @@ function updateAttrs (oldVnode: VNodeWithData, vnode: VNodeWithData) {
     cur = attrs[key]
     old = oldAttrs[key]
     if (old !== cur) {
-      elm.setAttr(key, cur)
+      // elm.setAttr(key, cur)
+      setAttribute(elm, key, cur)
     }
   }
   for (key in oldAttrs) {
     if (attrs[key] == null) {
-      elm.setAttr(key)
+      // elm.setAttr(key)
+      setAttribute(elm, key, '')
     }
   }
 }

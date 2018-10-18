@@ -2,6 +2,8 @@
 
 import { makeMap } from 'shared/util'
 
+export * from './class'
+
 export const isReservedTag = makeMap(
   'template,script,style,element,content,slot,link,meta,svg,view,' +
   'a,div,img,image,text,span,input,switch,textarea,spinner,select,' +

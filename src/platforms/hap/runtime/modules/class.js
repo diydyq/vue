@@ -1,64 +1,49 @@
 /* @flow */
 
-import { extend } from 'shared/util'
+import {
+  isDef,
+  isUndef
+} from 'shared/util'
 
-function updateClass (oldVnode: VNodeWithData, vnode: VNodeWithData) {
+import {
+  concat,
+  stringifyClass,
+  genClassForVnode
+} from 'hap/util/index'
+
+import {
+  setAttribute
+} from '../node-ops'
+
+function updateClass (oldVnode: any, vnode: any) {
   const el = vnode.elm
-  const ctx = vnode.context
-
   const data: VNodeData = vnode.data
   const oldData: VNodeData = oldVnode.data
-  if (!data.staticClass &&
-    !data.class &&
-    (!oldData || (!oldData.staticClass && !oldData.class))
+  if (
+    isUndef(data.staticClass) &&
+    isUndef(data.class) && (
+      isUndef(oldData) || (
+        isUndef(oldData.staticClass) &&
+        isUndef(oldData.class)
+      )
+    )
   ) {
     return
   }
 
-  const oldClassList = []
-  // unlike web, weex vnode staticClass is an Array
-  const oldStaticClass: any = oldData.staticClass
-  if (oldStaticClass) {
-    oldClassList.push.apply(oldClassList, oldStaticClass)
-  }
-  if (oldData.class) {
-    oldClassList.push.apply(oldClassList, oldData.class)
+  let cls = genClassForVnode(vnode)
+
+  // handle transition classes
+  const transitionClass = el._transitionClasses
+  if (isDef(transitionClass)) {
+    cls = concat(cls, stringifyClass(transitionClass))
   }
 
-  const classList = []
-  // unlike web, weex vnode staticClass is an Array
-  const staticClass: any = data.staticClass
-  if (staticClass) {
-    classList.push.apply(classList, staticClass)
+  // set the class
+  if (cls !== el._prevClass) {
+    setAttribute(el, 'class', cls)
+    el._prevClass = cls
   }
-  if (data.class) {
-    classList.push.apply(classList, data.class)
-  }
-
-  const style = getStyle(oldClassList, classList, ctx)
-  for (const key in style) {
-    el.setStyle(key, style[key])
-  }
-}
-
-function getStyle (oldClassList: Array<string>, classList: Array<string>, ctx: Component): Object {
-  // style is a weex-only injected object
-  // compiled from <style> tags in weex files
-  const stylesheet: any = ctx.$options.style || {}
-  const result = {}
-  classList.forEach(name => {
-    const style = stylesheet[name]
-    extend(result, style)
-  })
-  oldClassList.forEach(name => {
-    const style = stylesheet[name]
-    for (const key in style) {
-      if (!result.hasOwnProperty(key)) {
-        result[key] = ''
-      }
-    }
-  })
-  return result
 }
 
 export default {
