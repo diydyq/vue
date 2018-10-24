@@ -32,11 +32,20 @@ Vue.prototype.$mount = function (
   el?: any,
   hydrating?: boolean
 ): Component {
-  return mountComponent(
+  const options = this.$options
+  const { type = 'component' } = options
+  const component = mountComponent(
     this,
     el && query(el, this.$document),
     hydrating
   )
+  // 将页面与根VM链接
+  if (type === 'page') {
+    this.$connectVm2Page && this.$connectVm2Page()
+    this.$registerPageLifecycle && this.$registerPageLifecycle()
+  }
+
+  return component
 }
 
 export default Vue

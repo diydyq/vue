@@ -42,6 +42,7 @@ export function initLifecycle (vm: Component) {
   vm._inactive = null
   vm._directInactive = false
   vm._isMounted = false
+  vm._ready = false
   vm._isDestroyed = false
   vm._isBeingDestroyed = false
 }
@@ -101,6 +102,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     if (vm._isBeingDestroyed) {
       return
     }
+    callHapHook(vm, 'onDestroy')
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
     // remove self from parent
@@ -200,6 +202,8 @@ export function mountComponent (
   // mounted is called for render-created child components in its inserted hook
   if (vm.$vnode == null) {
     vm._isMounted = true
+    vm._ready = true
+    callHapHook(vm, 'onReady')
     callHook(vm, 'mounted')
   }
   return vm
@@ -325,4 +329,12 @@ export function callHook (vm: Component, hook: string) {
   if (vm._hasHookEvent) {
     vm.$emit('hook:' + hook)
   }
+}
+
+export function callHapHook (vm: Component, hook: string) {
+  const { type = 'component' } = vm.$options
+  if (type !== 'page') {
+    return
+  }
+  callHook.call(vm, vm, hook)
 }

@@ -324,7 +324,15 @@ var LIFECYCLE_HOOKS = [
   'destroyed',
   'activated',
   'deactivated',
-  'errorCaptured'
+  'errorCaptured',
+  'onInit',
+  'onReady',
+  'onShow',
+  'onHide',
+  'onBackPress',
+  'onMenuPress',
+  'onCreate',
+  'onDestroy'
 ];
 
 /*  */
@@ -2539,6 +2547,7 @@ function initLifecycle (vm) {
   vm._inactive = null;
   vm._directInactive = false;
   vm._isMounted = false;
+  vm._ready = false;
   vm._isDestroyed = false;
   vm._isBeingDestroyed = false;
 }
@@ -2598,6 +2607,7 @@ function lifecycleMixin (Vue) {
     if (vm._isBeingDestroyed) {
       return
     }
+    callHapHook(vm, 'onDestroy');
     callHook(vm, 'beforeDestroy');
     vm._isBeingDestroyed = true;
     // remove self from parent
@@ -2697,6 +2707,8 @@ function mountComponent (
   // mounted is called for render-created child components in its inserted hook
   if (vm.$vnode == null) {
     vm._isMounted = true;
+    vm._ready = true;
+    callHapHook(vm, 'onReady');
     callHook(vm, 'mounted');
   }
   return vm
@@ -2822,6 +2834,15 @@ function callHook (vm, hook) {
   if (vm._hasHookEvent) {
     vm.$emit('hook:' + hook);
   }
+}
+
+function callHapHook (vm, hook) {
+  var ref = vm.$options;
+  var type = ref.type; if ( type === void 0 ) type = 'component';
+  if (type !== 'page') {
+    return
+  }
+  callHook.call(vm, vm, hook);
 }
 
 /*  */
@@ -4017,6 +4038,8 @@ var componentVNodeHooks = {
     var componentInstance = vnode.componentInstance;
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true;
+      componentInstance._ready = true;
+      callHapHook(componentInstance, 'onReady');
       callHook(componentInstance, 'mounted');
     }
     if (vnode.data.keepAlive) {
@@ -4443,7 +4466,6 @@ function initMixin (Vue) {
     var vm = this;
     // a uid
     vm._uid = uid++;
-
     var startTag, endTag;
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -4478,10 +4500,12 @@ function initMixin (Vue) {
     initLifecycle(vm);
     initEvents(vm);
     initRender(vm);
+    callHapHook(vm, 'onInit');
     callHook(vm, 'beforeCreate');
     initInjections(vm); // resolve injections before data/props
     initState(vm);
     initProvide(vm); // resolve provide after data/props
+    callHapHook(vm, 'onCreate');
     callHook(vm, 'created');
 
     /* istanbul ignore if */
@@ -4938,6 +4962,7 @@ Object.defineProperty(Vue$2.prototype, '$ssrContext', {
 });
 
 Vue$2.version = '2.5.3';
+Vue$2.hapvueVersion = '1.0.0';
 
 /* globals document */
 // document is injected by weex factory wrapper
@@ -5931,12 +5956,14 @@ function updateAttrs (oldVnode, vnode) {
     cur = attrs[key];
     old = oldAttrs[key];
     if (old !== cur) {
-      elm.setAttr(key, cur);
+      // elm.setAttr(key, cur)
+      setAttribute(elm, key, cur);
     }
   }
   for (key in oldAttrs) {
     if (attrs[key] == null) {
-      elm.setAttr(key);
+      // elm.setAttr(key)
+      setAttribute(elm, key, '');
     }
   }
 }
@@ -5948,63 +5975,158 @@ var attrs = {
 
 /*  */
 
+function genClassForVnode (vnode) {
+  var data = vnode.data;
+  var parentNode = vnode;
+  var childNode = vnode;
+  while (isDef(childNode.componentInstance)) {
+    childNode = childNode.componentInstance._vnode;
+    if (childNode.data) {
+      data = mergeClassData(childNode.data, data);
+    }
+  }
+  while (isDef(parentNode = parentNode.parent)) {
+    if (parentNode.data) {
+      data = mergeClassData(data, parentNode.data);
+    }
+  }
+  return renderClass(data.staticClass, data.class)
+}
+
+function mergeClassData (child, parent) {
+  return {
+    staticClass: concat(child.staticClass, parent.staticClass),
+    class: isDef(child.class)
+      ? [child.class, parent.class]
+      : parent.class
+  }
+}
+
+function renderClass (
+  staticClass,
+  dynamicClass
+) {
+  if (isDef(staticClass) || isDef(dynamicClass)) {
+    return concat(staticClass, stringifyClass(dynamicClass))
+  }
+  /* istanbul ignore next */
+  return ''
+}
+
+function concat (a, b) {
+  return a ? b ? (a + ' ' + b) : a : (b || '')
+}
+
+function stringifyClass (value) {
+  if (Array.isArray(value)) {
+    return stringifyArray(value)
+  }
+  if (isObject(value)) {
+    return stringifyObject(value)
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  /* istanbul ignore next */
+  return ''
+}
+
+function stringifyArray (value) {
+  var res = '';
+  var stringified;
+  for (var i = 0, l = value.length; i < l; i++) {
+    if (isDef(stringified = stringifyClass(value[i])) && stringified !== '') {
+      if (res) { res += ' '; }
+      res += stringified;
+    }
+  }
+  return res
+}
+
+function stringifyObject (value) {
+  var res = '';
+  for (var key in value) {
+    if (value[key]) {
+      if (res) { res += ' '; }
+      res += key;
+    }
+  }
+  return res
+}
+
+/* globals document */
+
+var isReservedTag$1 = makeMap(
+  'template,script,style,element,content,slot,link,meta,svg,view,' +
+  'a,div,img,image,text,span,input,switch,textarea,spinner,select,' +
+  'slider,slider-neighbor,indicator,canvas,' +
+  'list,cell,header,loading,loading-indicator,refresh,scrollable,scroller,' +
+  'video,web,embed,tabbar,tabheader,datepicker,timepicker,marquee,countdown',
+  true
+);
+
+// Elements that you can, intentionally, leave open (and which close themselves)
+// more flexible than web
+var canBeLeftOpenTag = makeMap(
+  'web,spinner,switch,video,textarea,canvas,' +
+  'indicator,marquee,countdown',
+  true
+);
+
+var isRuntimeComponent = makeMap(
+  'richtext,trisition,trisition-group',
+  true
+);
+
+var isUnaryTag = makeMap(
+  'embed,img,image,input,link,meta',
+  true
+);
+
+function mustUseProp () { /* console.log('mustUseProp') */ }
+
+function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
+
+function query (el, document) {
+  var nodeBody = document.createElement('div');
+  document.documentElement.appendChild(nodeBody);
+
+  var nodeAttach = document.createElement('div');
+  nodeBody.appendChild(nodeAttach);
+  return nodeAttach
+}
+
+/*  */
+
 function updateClass (oldVnode, vnode) {
   var el = vnode.elm;
-  var ctx = vnode.context;
-
   var data = vnode.data;
   var oldData = oldVnode.data;
-  if (!data.staticClass &&
-    !data.class &&
-    (!oldData || (!oldData.staticClass && !oldData.class))
+  if (
+    isUndef(data.staticClass) &&
+    isUndef(data.class) && (
+      isUndef(oldData) || (
+        isUndef(oldData.staticClass) &&
+        isUndef(oldData.class)
+      )
+    )
   ) {
     return
   }
 
-  var oldClassList = [];
-  // unlike web, weex vnode staticClass is an Array
-  var oldStaticClass = oldData.staticClass;
-  if (oldStaticClass) {
-    oldClassList.push.apply(oldClassList, oldStaticClass);
-  }
-  if (oldData.class) {
-    oldClassList.push.apply(oldClassList, oldData.class);
+  var cls = genClassForVnode(vnode);
+
+  // handle transition classes
+  var transitionClass = el._transitionClasses;
+  if (isDef(transitionClass)) {
+    cls = concat(cls, stringifyClass(transitionClass));
   }
 
-  var classList = [];
-  // unlike web, weex vnode staticClass is an Array
-  var staticClass = data.staticClass;
-  if (staticClass) {
-    classList.push.apply(classList, staticClass);
+  // set the class
+  if (cls !== el._prevClass) {
+    setAttribute(el, 'class', cls);
+    el._prevClass = cls;
   }
-  if (data.class) {
-    classList.push.apply(classList, data.class);
-  }
-
-  var style = getStyle(oldClassList, classList, ctx);
-  for (var key in style) {
-    el.setStyle(key, style[key]);
-  }
-}
-
-function getStyle (oldClassList, classList, ctx) {
-  // style is a weex-only injected object
-  // compiled from <style> tags in weex files
-  var stylesheet = ctx.$options.style || {};
-  var result = {};
-  classList.forEach(function (name) {
-    var style = stylesheet[name];
-    extend(result, style);
-  });
-  oldClassList.forEach(function (name) {
-    var style = stylesheet[name];
-    for (var key in style) {
-      if (!result.hasOwnProperty(key)) {
-        result[key] = '';
-      }
-    }
-  });
-  return result
 }
 
 var klass = {
@@ -6473,48 +6595,6 @@ var platformDirectives = {
 var platformComponents = {
 };
 
-/* globals document */
-
-var isReservedTag$1 = makeMap(
-  'template,script,style,element,content,slot,link,meta,svg,view,' +
-  'a,div,img,image,text,span,input,switch,textarea,spinner,select,' +
-  'slider,slider-neighbor,indicator,canvas,' +
-  'list,cell,header,loading,loading-indicator,refresh,scrollable,scroller,' +
-  'video,web,embed,tabbar,tabheader,datepicker,timepicker,marquee,countdown',
-  true
-);
-
-// Elements that you can, intentionally, leave open (and which close themselves)
-// more flexible than web
-var canBeLeftOpenTag = makeMap(
-  'web,spinner,switch,video,textarea,canvas,' +
-  'indicator,marquee,countdown',
-  true
-);
-
-var isRuntimeComponent = makeMap(
-  'richtext,trisition,trisition-group',
-  true
-);
-
-var isUnaryTag = makeMap(
-  'embed,img,image,input,link,meta',
-  true
-);
-
-function mustUseProp () { /* console.log('mustUseProp') */ }
-
-function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
-
-function query (el, document) {
-  var nodeBody = document.createElement('div');
-  document.documentElement.appendChild(nodeBody);
-
-  var nodeAttach = document.createElement('div');
-  nodeBody.appendChild(nodeAttach);
-  return nodeAttach
-}
-
 /*  */
 
 // install platform specific utils
@@ -6535,11 +6615,20 @@ Vue$2.prototype.$mount = function (
   el,
   hydrating
 ) {
-  return mountComponent(
+  var options = this.$options;
+  var type = options.type; if ( type === void 0 ) type = 'component';
+  var component = mountComponent(
     this,
     el && query(el, this.$document),
     hydrating
-  )
+  );
+  // 将页面与根VM链接
+  if (type === 'page') {
+    this.$connectVm2Page && this.$connectVm2Page();
+    this.$registerPageLifecycle && this.$registerPageLifecycle();
+  }
+
+  return component
 };
 
 // this entry is built and wrapped with a factory function

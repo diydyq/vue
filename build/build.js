@@ -14,7 +14,8 @@ let builds = require('./config').getAllBuilds()
 if (process.argv[2]) {
   const filters = process.argv[2].split(',')
   builds = builds.filter(b => {
-    return filters.some(f => b.output.file.indexOf(f) > -1 || b._name.indexOf(f) > -1)
+    return filters.some(f => b.output.file.slice(path.resolve(__dirname, '../').length).indexOf(f) > -1)
+    // return filters.some(f => b.output.file.indexOf(f) > -1 || b._name.indexOf(f) > -1)
   })
 } else {
   // filter out weex builds by default
@@ -67,7 +68,26 @@ function write (dest, code, zip) {
   return new Promise((resolve, reject) => {
     function report (extra) {
       console.log(blue(path.relative(process.cwd(), dest)) + ' ' + getSize(code) + (extra || ''))
-      resolve()
+      if (process.argv[2].split(',')[0] === 'hap-vue-framework') {
+        // 在这里修改框架在hap框架中的打包位置
+        fs.writeFile(path.resolve(process.cwd(), '../../tmp/core/framework/src/frameworks/vue/page/factory.js'), code, err => {
+          if (err) {
+            reject(err)
+          }
+          if (zip) {
+            zlib.gzip(code, (err, zipped) => {
+              if (err) return reject(err)
+              console.log(blue('zip in quickapp success'))
+              resolve()
+            })
+          } else {
+            console.log(blue('build in quickapp success'))
+            resolve()
+          }
+        })
+      } else {
+        resolve()
+      }
     }
 
     fs.writeFile(dest, code, err => {
