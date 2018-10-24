@@ -1,0 +1,6 @@
+{
+  "name": "hapvue",
+  "version": "1.0.0",
+  "description": "Vue Runtime for quickapp",
+  "main": "index.js"
+}
