@@ -6,7 +6,7 @@ import { initState } from './state'
 import { initRender } from './render'
 import { initEvents } from './events'
 import { mark, measure } from '../util/perf'
-import { initLifecycle, callHook, callHapHook } from './lifecycle'
+import { initLifecycle, callHook } from './lifecycle'
 import { initProvide, initInjections } from './inject'
 import { extend, mergeOptions, formatComponentName } from '../util/index'
 
@@ -51,12 +51,10 @@ export function initMixin (Vue: Class<Component>) {
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
-    callHapHook(vm, 'onInit')
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
     initState(vm)
     initProvide(vm) // resolve provide after data/props
-    callHapHook(vm, 'onCreate')
     callHook(vm, 'created')
 
     /* istanbul ignore if */

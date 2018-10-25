@@ -17,13 +17,5 @@ export const LIFECYCLE_HOOKS = [
   'destroyed',
   'activated',
   'deactivated',
-  'errorCaptured',
-  'onInit',
-  'onReady',
-  'onShow',
-  'onHide',
-  'onBackPress',
-  'onMenuPress',
-  'onCreate',
-  'onDestroy'
+  'errorCaptured'
 ]

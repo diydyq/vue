@@ -324,15 +324,7 @@ var LIFECYCLE_HOOKS = [
   'destroyed',
   'activated',
   'deactivated',
-  'errorCaptured',
-  'onInit',
-  'onReady',
-  'onShow',
-  'onHide',
-  'onBackPress',
-  'onMenuPress',
-  'onCreate',
-  'onDestroy'
+  'errorCaptured'
 ];
 
 /*  */
@@ -2547,7 +2539,6 @@ function initLifecycle (vm) {
   vm._inactive = null;
   vm._directInactive = false;
   vm._isMounted = false;
-  vm._ready = false;
   vm._isDestroyed = false;
   vm._isBeingDestroyed = false;
 }
@@ -2607,7 +2598,6 @@ function lifecycleMixin (Vue) {
     if (vm._isBeingDestroyed) {
       return
     }
-    callHapHook(vm, 'onDestroy');
     callHook(vm, 'beforeDestroy');
     vm._isBeingDestroyed = true;
     // remove self from parent
@@ -2707,8 +2697,6 @@ function mountComponent (
   // mounted is called for render-created child components in its inserted hook
   if (vm.$vnode == null) {
     vm._isMounted = true;
-    vm._ready = true;
-    callHapHook(vm, 'onReady');
     callHook(vm, 'mounted');
   }
   return vm
@@ -2834,15 +2822,6 @@ function callHook (vm, hook) {
   if (vm._hasHookEvent) {
     vm.$emit('hook:' + hook);
   }
-}
-
-function callHapHook (vm, hook) {
-  var ref = vm.$options;
-  var type = ref.type; if ( type === void 0 ) type = 'component';
-  if (type !== 'page') {
-    return
-  }
-  callHook.call(vm, vm, hook);
 }
 
 /*  */
@@ -4038,8 +4017,6 @@ var componentVNodeHooks = {
     var componentInstance = vnode.componentInstance;
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true;
-      componentInstance._ready = true;
-      callHapHook(componentInstance, 'onReady');
       callHook(componentInstance, 'mounted');
     }
     if (vnode.data.keepAlive) {
@@ -4500,12 +4477,10 @@ function initMixin (Vue) {
     initLifecycle(vm);
     initEvents(vm);
     initRender(vm);
-    callHapHook(vm, 'onInit');
     callHook(vm, 'beforeCreate');
     initInjections(vm); // resolve injections before data/props
     initState(vm);
     initProvide(vm); // resolve provide after data/props
-    callHapHook(vm, 'onCreate');
     callHook(vm, 'created');
 
     /* istanbul ignore if */
@@ -6629,6 +6604,55 @@ Vue$2.prototype.$mount = function (
   }
 
   return component
+};
+
+var _init = Vue$2.prototype._init;
+
+Vue$2.prototype._init = function (options) {
+  var vm = this;
+  var $options = vm.constructor.options;
+  if ($options.type === 'page') {
+    this.$connectLifecycle && this.$connectLifecycle($options);
+  }
+  _init.call(this, options);
+};
+
+Vue$2.prototype.$connectLifecycle = function (options) {
+  var this$1 = this;
+
+  // onReady 放到 Vue mounted钩子中执行
+  var pageReadyHook = function () {
+    this$1._ready = true;
+    var readyHook = options.onReady;
+    if (readyHook && typeof readyHook === 'function') {
+      readyHook.call(this$1);
+    }
+  };
+  options.mounted = options.mounted || [];
+  options.mounted = Array.isArray(options.mounted) ? options.mounted : [options.mounted];
+  options.mounted.push(pageReadyHook);
+
+  // onInit 放到 Vue 的beforeCreate钩子中执行
+  var pageInitHook = function () {
+    var initHook = options.onInit;
+    if (initHook && typeof initHook === 'function') {
+      initHook.call(this$1);
+    }
+  };
+  options.beforeCreate = options.beforeCreate || [];
+  options.beforeCreate = Array.isArray(options.beforeCreate) ? options.beforeCreate : [options.beforeCreate];
+  options.beforeCreate.push(pageInitHook);
+
+  // onDestroy 放到 Vue 的beforeDestroy钩子中执行
+  var pageDestroyHook = function () {
+    var destroyHook = options.onDestroy;
+    if (destroyHook && typeof destroyHook === 'function') {
+      destroyHook.call(this$1);
+    }
+  };
+  options.beforeDestroy = options.beforeDestroy || [];
+  options.beforeDestroy = Array.isArray(options.beforeDestroy) ? options.beforeDestroy : [options.beforeDestroy];
+  options.beforeDestroy.push(pageDestroyHook);
 };
 
 // this entry is built and wrapped with a factory function

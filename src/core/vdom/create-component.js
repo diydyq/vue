@@ -21,7 +21,6 @@ import {
 
 import {
   callHook,
-  callHapHook,
   activeInstance,
   updateChildComponent,
   activateChildComponent,
@@ -67,8 +66,6 @@ const componentVNodeHooks = {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true
-      componentInstance._ready = true
-      callHapHook(componentInstance, 'onReady')
       callHook(componentInstance, 'mounted')
     }
     if (vnode.data.keepAlive) {
