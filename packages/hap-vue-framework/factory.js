@@ -6570,7 +6570,36 @@ var platformDirectives = {
 var platformComponents = {
 };
 
+function $extend (target) {
+  var src = [], len = arguments.length - 1;
+  while ( len-- > 0 ) src[ len ] = arguments[ len + 1 ];
+
+  /* istanbul ignore else */
+  if (typeof Object.assign === 'function') {
+    Object.assign.apply(Object, [ target ].concat( src ));
+  } else {
+    var first = src.shift();
+    // 覆盖旧值
+    for (var key in first) {
+      target[key] = first[key];
+    }
+    if (src.length) {
+      $extend.apply(void 0, [ target ].concat( src ));
+    }
+  }
+  return target
+}
+
+function isEmptyObject (obj) {
+  for (var key in obj) {
+    return false
+  }
+  return true
+}
+
 /*  */
+
+var accessors = ['public', 'protected', 'private'];
 
 // install platform specific utils
 Vue$2.config.mustUseProp = mustUseProp;
@@ -6586,10 +6615,7 @@ Vue$2.options.components = platformComponents;
 Vue$2.prototype.__patch__ = patch;
 
 // wrap mount
-Vue$2.prototype.$mount = function (
-  el,
-  hydrating
-) {
+Vue$2.prototype.$mount = function (el, hydrating) {
   var options = this.$options;
   var type = options.type; if ( type === void 0 ) type = 'component';
   var component = mountComponent(
@@ -6606,6 +6632,77 @@ Vue$2.prototype.$mount = function (
   return component
 };
 
+Vue$2.prototype.initExternalData = function () {
+  var this$1 = this;
+
+  console.log("options", this.$options);
+  var externalData = Vue$2.config.externalData;
+  if (this.$options.type !== 'page') {
+    return
+  }
+  if (externalData) {
+    return
+  }
+  if (!this.$options._descriptor) {
+    $extend(this.$options.data, externalData);
+    return
+  }
+  var fromExternal = this._page.intent && this._page.intent.fromExternal;
+  if (!this._page.intent || this._page.intent.fromExternal === undefined) {
+    // 不传递则走按严格校验
+    fromExternal = true;
+  }
+  console.trace(("### App Framework ### 页面VM中声明的权限定义：" + (JSON.stringify(this.$options._descriptor))));
+  if (this.$options.$props && !isEmptyObject(externalData)) {
+    console.warn("### App Framework ### 页面VM中不支持props，推荐在public或protected中声明参数");
+  }
+    // 校验合并
+  for (var extName in externalData) {
+    var extDesc = this$1.$options._descriptor[extName];
+
+    if (!extDesc) {
+      console.trace(("### App Framework ### 传递外部数据" + extName + "在VM中未声明，放弃更新"));
+      continue
+    }
+
+    var matchFromExPackage = fromExternal && accessors.indexOf(extDesc.access) > 0;
+    var matchFromInPackage = !fromExternal && accessors.indexOf(extDesc.access) > 1;
+    if (matchFromExPackage || matchFromInPackage) {
+      console.warn(("### App Framework ### 传递外部数据" + extName + "在VM中声明为" + (extDesc.access) + "，放弃更新"));
+    } else {
+      console.trace(("### App Framework ### 传递外部数据" + extName + "，原值为:" + (JSON.stringify(this$1._data[extName]))));
+      console.trace(("### App Framework ### 传递外部数据" + extName + "，新值为:" + (JSON.stringify(externalData[extName]))));
+      this$1.$options.data[extName] = externalData[extName];
+    }
+  }
+};
+
+Vue$2.prototype.$mergeAccess2Data = function (options) {
+  if (typeof options.data === 'function') {
+    options.data = options.data();
+  }
+  if (options.data && accessors.some(function (acc) { return options[acc]; })) {
+    throw new Error('页面VM对象中的属性data不可与' + accessors.join(',') + '同时存在，请使用private替换data名称')
+  } else if (!options.data) {
+    options.data = {};
+    options._descriptor = {};
+    accessors.forEach(function (acc) {
+      var accType = typeof options[acc];
+      if (accType === 'object') {
+        options.data = Object.assign(options.data, options[acc]);
+        for (var name in options[acc]) {
+          options._descriptor[name] = {
+            access: acc
+          };
+        }
+      } else if (accType === 'function') {
+        console.warn('页面VM对象中的属性' + acc + '的值不能是函数，请使用对象');
+      }
+    });
+  }
+  console.log("options1", options);
+};
+
 var _init = Vue$2.prototype._init;
 
 Vue$2.prototype._init = function (options) {
@@ -6613,6 +6710,7 @@ Vue$2.prototype._init = function (options) {
   var $options = vm.constructor.options;
   if ($options.type === 'page') {
     this.$connectLifecycle && this.$connectLifecycle($options);
+    this.$mergeAccess2Data && this.$mergeAccess2Data($options);
   }
   _init.call(this, options);
 };
@@ -6639,9 +6737,16 @@ Vue$2.prototype.$connectLifecycle = function (options) {
       initHook.call(this$1);
     }
   };
+
+  var initExternalData = function () {
+    this$1.$connectPage2Vm();
+    this$1.initExternalData();
+  };
+
   options.beforeCreate = options.beforeCreate || [];
   options.beforeCreate = Array.isArray(options.beforeCreate) ? options.beforeCreate : [options.beforeCreate];
   options.beforeCreate.push(pageInitHook);
+  options.beforeCreate.push(initExternalData);
 
   // onDestroy 放到 Vue 的beforeDestroy钩子中执行
   var pageDestroyHook = function () {
