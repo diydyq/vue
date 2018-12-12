@@ -150,6 +150,7 @@ Vue.prototype.$connectLifecycle = function (options) {
   }
 
   const initExternalData = () => {
+    // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
     this.$connectPage2Vm()
     this.initExternalData()
   }

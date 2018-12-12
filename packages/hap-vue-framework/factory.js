@@ -6635,7 +6635,6 @@ Vue$2.prototype.$mount = function (el, hydrating) {
 Vue$2.prototype.initExternalData = function () {
   var this$1 = this;
 
-  console.log("options", this.$options);
   var externalData = Vue$2.config.externalData;
   if (this.$options.type !== 'page') {
     return
@@ -6700,7 +6699,6 @@ Vue$2.prototype.$mergeAccess2Data = function (options) {
       }
     });
   }
-  console.log("options1", options);
 };
 
 var _init = Vue$2.prototype._init;
@@ -6739,6 +6737,7 @@ Vue$2.prototype.$connectLifecycle = function (options) {
   };
 
   var initExternalData = function () {
+    // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
     this$1.$connectPage2Vm();
     this$1.initExternalData();
   };
