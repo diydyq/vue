@@ -9,7 +9,7 @@ import {
   concat,
   stringifyClass,
   genClassForVnode
-} from 'hap/util/index'
+} from 'quickapp/util/index'
 
 import {
   setAttribute

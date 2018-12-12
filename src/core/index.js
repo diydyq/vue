@@ -16,6 +16,6 @@ Object.defineProperty(Vue.prototype, '$ssrContext', {
 })
 
 Vue.version = '__VERSION__'
-Vue.hapvueVersion = '__HAPVUE_VERSION__'
+Vue.quickappVersion = '__QUICKAPP_VERSION__'
 
 export default Vue

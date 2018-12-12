@@ -7,7 +7,7 @@ const node = require('rollup-plugin-node-resolve')
 const flow = require('rollup-plugin-flow-no-whitespace')
 const version = process.env.VERSION || require('../package.json').version
 const weexVersion = process.env.WEEX_VERSION || require('../packages/weex-vue-framework/package.json').version
-const hapVueVersion = process.env.HAP_VUE_VERSION || require('../packages/hap-vue-framework/package.json').version
+const quickappVersion = process.env.QUICKAPP_VERSION || require('../packages/quickapp-vue-framework/package.json').version
 
 const banner =
   '/*!\n' +
@@ -167,17 +167,10 @@ const builds = {
     format: 'cjs',
     external: Object.keys(require('../packages/weex-template-compiler/package.json').dependencies)
   },
-  'hap-factory': {
-    hap: true,
-    entry: resolve('hap/entry-runtime-factory.js'),
-    dest: resolve('packages/hap-vue-framework/factory.js'),
-    format: 'cjs',
-    plugins: [weexFactoryPlugin]
-  },
-  'hapvue': {
-    hap: true,
-    entry: resolve('hap/entry-runtime-factory.js'),
-    dest: resolve('packages/hap-vue-factory/factory.js'),
+  'quickapp': {
+    quickapp: true,
+    entry: resolve('quickapp/entry-runtime-factory.js'),
+    dest: resolve('packages/quickapp-vue-framework/factory.js'),
     env: 'development',
     format: 'cjs',
     plugins: [weexFactoryPlugin]
@@ -193,7 +186,7 @@ function genConfig (name) {
       replace({
         __WEEX__: !!opts.weex,
         __WEEX_VERSION__: weexVersion,
-        __HAPVUE_VERSION__: hapVueVersion,
+        __QUICKAPP_VERSION__: quickappVersion,
         __VERSION__: version
       }),
       flow(),

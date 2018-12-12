@@ -1,10 +1,10 @@
 /* @flow */
 
 import Vue from 'core/index'
-import { patch } from 'hap/runtime/patch'
+import { patch } from 'quickapp/runtime/patch'
 import { mountComponent } from 'core/instance/lifecycle'
-import platformDirectives from 'hap/runtime/directives/index'
-import platformComponents from 'hap/runtime/components/index'
+import platformDirectives from 'quickapp/runtime/directives/index'
+import platformComponents from 'quickapp/runtime/components/index'
 
 import {
   query,
@@ -12,7 +12,7 @@ import {
   isReservedTag,
   isRuntimeComponent,
   isUnknownElement
-} from 'hap/util/index'
+} from 'quickapp/util/index'
 
 import { $extend, isEmptyObject } from './utils'
 
