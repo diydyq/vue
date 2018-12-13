@@ -38,6 +38,7 @@ export function isUnknownElement () { /* console.log('isUnknownElement') */ }
 export function query (el, document) {
   const nodeBody = document.createElement('div')
   document.documentElement.appendChild(nodeBody)
+  this.$registerStyleObject && this.$registerStyleObject(nodeBody)
 
   const nodeAttach = document.createElement('div')
   nodeBody.appendChild(nodeAttach)
