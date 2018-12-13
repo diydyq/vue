@@ -37,7 +37,7 @@ Vue.prototype.$mount = function (el, hydrating) {
   const { type = 'component' } = options
   const component = mountComponent(
     this,
-    el && query(el, this.$document),
+    el && query.bind(this)(el, this.$document),
     hydrating
   )
   // 将页面与根VM链接

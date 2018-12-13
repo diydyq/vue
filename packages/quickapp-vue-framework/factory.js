@@ -6050,6 +6050,7 @@ function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
 function query (el, document) {
   var nodeBody = document.createElement('div');
   document.documentElement.appendChild(nodeBody);
+  this.$registerStyleObject && this.$registerStyleObject(nodeBody);
 
   var nodeAttach = document.createElement('div');
   nodeBody.appendChild(nodeAttach);
@@ -6369,7 +6370,7 @@ function enter (_, vnode) {
     enterHook && enterHook(el, cb);
 
     if (needAnimation) {
-      var animation = vnode.context.$requireWeexModule('animation');
+      var animation = vnode.context.$requireQuickappModule('animation');
       animation.transition(el.ref, {
         styles: endState,
         duration: transitionProperties.duration || 0,
@@ -6453,7 +6454,7 @@ function leave (vnode, rm) {
   }
 
   function performLeave () {
-    var animation = vnode.context.$requireWeexModule('animation');
+    var animation = vnode.context.$requireQuickappModule('animation');
     // the delayed leave may have already been cancelled
     if (cb.cancelled) {
       return
@@ -6508,7 +6509,7 @@ function getEnterTargetState (el, stylesheet, startClass, endClass, activeClass,
           "transition property \"" + key + "\" is declared in enter starting class (." + startClass + "), " +
           "but not declared anywhere in enter ending class (." + endClass + "), " +
           "enter active cass (." + activeClass + ") or the element's default styling. " +
-          "Note in Weex, CSS properties need explicit values to be transitionable."
+          "Note in Quickapp, CSS properties need explicit values to be transitionable."
         );
       }
     }
@@ -6605,7 +6606,7 @@ Vue$2.prototype.$mount = function (el, hydrating) {
   var type = options.type; if ( type === void 0 ) type = 'component';
   var component = mountComponent(
     this,
-    el && query(el, this.$document),
+    el && query.bind(this)(el, this.$document),
     hydrating
   );
   // 将页面与根VM链接
