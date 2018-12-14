@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function weexFactory (exports, document) {
+module.exports = function quickAppFactory (exports, document) {
 
 /*  */
 
@@ -6048,6 +6048,9 @@ function mustUseProp () { /* console.log('mustUseProp') */ }
 function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
 
 function query (el, document) {
+  if (typeof el === 'object' && el !== null) {
+    return el
+  }
   var nodeBody = document.createElement('div');
   document.documentElement.appendChild(nodeBody);
   this.$registerStyleObject && this.$registerStyleObject(nodeBody);

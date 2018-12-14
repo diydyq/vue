@@ -36,6 +36,9 @@ export function getTagNamespace () { /* console.log('getTagNamespace') */ }
 export function isUnknownElement () { /* console.log('isUnknownElement') */ }
 
 export function query (el, document) {
+  if (typeof el === 'object' && el !== null) {
+    return el
+  }
   const nodeBody = document.createElement('div')
   document.documentElement.appendChild(nodeBody)
   this.$registerStyleObject && this.$registerStyleObject(nodeBody)

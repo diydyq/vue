@@ -25,6 +25,15 @@ const weexFactoryPlugin = {
   }
 }
 
+const quickAppFactoryPlugin = {
+  intro () {
+    return 'module.exports = function quickAppFactory (exports, document) {'
+  },
+  outro () {
+    return '}'
+  }
+}
+
 const aliases = require('./alias')
 const resolve = p => {
   const base = p.split('/')[0]
@@ -173,7 +182,7 @@ const builds = {
     dest: resolve('packages/quickapp-vue-framework/factory.js'),
     env: 'development',
     format: 'cjs',
-    plugins: [weexFactoryPlugin]
+    plugins: [quickAppFactoryPlugin]
   }
 }
 

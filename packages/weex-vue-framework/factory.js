@@ -4937,7 +4937,7 @@ Object.defineProperty(Vue$2.prototype, '$ssrContext', {
 });
 
 Vue$2.version = '2.5.3';
-Vue$2.hapvueVersion = '1.0.0';
+Vue$2.quickappVersion = '1.0.0';
 
 var latestNodeId = 1;
 
