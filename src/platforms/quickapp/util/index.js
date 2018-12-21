@@ -39,10 +39,7 @@ export function query (el, document) {
   if (typeof el === 'object' && el !== null) {
     return el
   }
-  const nodeBody = document.createElement('div')
-  document.documentElement.appendChild(nodeBody)
-  this.$registerStyleObject && this.$registerStyleObject(nodeBody)
-
+  const nodeBody = document.documentElement.childNodes[0]
   const nodeAttach = document.createElement('div')
   nodeBody.appendChild(nodeAttach)
   return nodeAttach

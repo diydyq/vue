@@ -6061,10 +6061,7 @@ function query (el, document) {
   if (typeof el === 'object' && el !== null) {
     return el
   }
-  var nodeBody = document.createElement('div');
-  document.documentElement.appendChild(nodeBody);
-  this.$registerStyleObject && this.$registerStyleObject(nodeBody);
-
+  var nodeBody = document.documentElement.childNodes[0];
   var nodeAttach = document.createElement('div');
   nodeBody.appendChild(nodeAttach);
   return nodeAttach
@@ -6737,7 +6734,6 @@ Vue$2.prototype.$connectLifecycle = function (options) {
 
   var initExternalData = function () {
     // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
-    this$1.$connectPage2Vm();
     this$1.initExternalData();
   };
 
