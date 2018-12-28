@@ -69,8 +69,9 @@ function write (dest, code, zip) {
     function report (extra) {
       console.log(blue(path.relative(process.cwd(), dest)) + ' ' + getSize(code) + (extra || ''))
       if (process.argv[2].split(',')[0] === 'quickapp') {
+        const dirPath = dest.indexOf('compiler') > -1 ? '../../tmp/core/framework/src/dsls/vue/vm/factory-with-compiler.js' : '../../tmp/core/framework/src/dsls/vue/vm/factory.js'
         // 在这里修改框架在hap框架中的打包位置
-        fs.writeFile(path.resolve(process.cwd(), '../../tmp/core/framework/src/dsls/vue/vm/factory.js'), code, err => {
+        fs.writeFile(path.resolve(process.cwd(), dirPath), code, err => {
           if (err) {
             reject(err)
           }

@@ -39,7 +39,7 @@ export function query (el, document) {
   if (typeof el === 'object' && el !== null) {
     return el
   }
-  const nodeBody = document.documentElement.childNodes[0]
+  const nodeBody = document.body
   const nodeAttach = document.createElement('div')
   nodeBody.appendChild(nodeAttach)
   return nodeAttach

@@ -183,6 +183,14 @@ const builds = {
     env: 'development',
     format: 'cjs',
     plugins: [quickAppFactoryPlugin]
+  },
+  'quickapp-with-compiler': {
+    quickapp: true,
+    entry: resolve('quickapp/entry-runtime-factory-with-compiler.js'),
+    dest: resolve('packages/quickapp-vue-framework/factory-with-compiler.js'),
+    env: 'development',
+    format: 'cjs',
+    plugins: [quickAppFactoryPlugin]
   }
 }
 
