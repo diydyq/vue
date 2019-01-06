@@ -1,6 +1,10 @@
 /* @flow */
 
-import { isDef, isUndef, extend, toNumber } from 'shared/util'
+import { isDef, isUndef, extend } from 'shared/util'
+
+import {
+  setAttribute
+} from '../node-ops'
 
 function updateDOMProps (oldVnode, vnode) {
   if (isUndef(oldVnode.data.domProps) && isUndef(vnode.data.domProps)) {
@@ -17,7 +21,7 @@ function updateDOMProps (oldVnode, vnode) {
 
   for (key in oldProps) {
     if (isUndef(props[key])) {
-      elm._attr[key] = ''
+      setAttribute(elm, key, '')
     }
   }
   for (key in props) {
@@ -25,9 +29,9 @@ function updateDOMProps (oldVnode, vnode) {
 
     if (key === 'value') {
       const strCur = isUndef(cur) ? '' : String(cur)
-      elm._attr[key] = strCur
+      setAttribute(elm, key, strCur)
     } else {
-      elm._attr[key] = cur
+      setAttribute(elm, key, cur)
     }
   }
 }
