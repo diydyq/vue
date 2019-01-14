@@ -5,6 +5,7 @@ import { patch } from 'quickapp/runtime/patch'
 import { mountComponent } from 'core/instance/lifecycle'
 import platformDirectives from 'quickapp/runtime/directives/index'
 import platformComponents from 'quickapp/runtime/components/index'
+import { extend } from 'shared/util'
 
 import {
   query,
@@ -15,6 +16,8 @@ import {
 } from 'quickapp/util/index'
 
 import { $extend, isEmptyObject } from './utils'
+
+extend(Vue.options.directives, platformDirectives)
 
 const accessors = ['public', 'protected', 'private']
 

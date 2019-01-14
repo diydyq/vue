@@ -1,6 +1,6 @@
 /*!
  * Vue.js v2.5.3
- * (c) 2014-2017 Evan You
+ * (c) 2014-2019 Evan You
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -4225,6 +4225,16 @@ function createElement (
   normalizationType,
   alwaysNormalize
 ) {
+
+  if (context.$options._scopeId) {
+    if (data && data.staticClass) {
+      data.staticClass = data.staticClass.split(' ').map(function (item) { return context.$options._scopeId + '-' + item; }).join(' ');
+    }
+    if (data && data.class) {
+      data.class = data.class.split(' ').map(function (item) { return context.$options._scopeId + '-' + item; }).join(' ');
+    }
+  }
+
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children;
     children = data;
@@ -4444,7 +4454,6 @@ function initMixin (Vue) {
     var vm = this;
     // a uid
     vm._uid = uid++;
-
     var startTag, endTag;
     /* istanbul ignore if */
     if ("development" !== 'production' && config.performance && mark) {
@@ -4937,6 +4946,7 @@ Object.defineProperty(Vue$3.prototype, '$ssrContext', {
 });
 
 Vue$3.version = '2.5.3';
+Vue$3.quickappVersion = '1.0.0';
 
 /*  */
 

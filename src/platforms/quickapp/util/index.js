@@ -31,6 +31,10 @@ export const isUnaryTag = makeMap(
   true
 )
 
+export const isTextInputType = makeMap(
+  'text,number,password,search,email,tel,url'
+)
+
 export function mustUseProp () { /* console.log('mustUseProp') */ }
 export function getTagNamespace () { /* console.log('getTagNamespace') */ }
 export function isUnknownElement () { /* console.log('isUnknownElement') */ }

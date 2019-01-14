@@ -1,3 +1,7 @@
+/*
+* Copyright (C) 2017, hapjs.org. All rights reserved.
+*/
+
 'use strict';
 
 module.exports = function quickAppFactory (exports, document) {
@@ -6053,6 +6057,10 @@ var isUnaryTag = makeMap(
   true
 );
 
+var isTextInputType$1 = makeMap(
+  'text,number,password,search,email,tel,url'
+);
+
 function mustUseProp () { /* console.log('mustUseProp') */ }
 
 function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
@@ -6598,7 +6606,111 @@ var patch = createPatchFunction({
   LONG_LIST_THRESHOLD: 10
 });
 
+/**
+ * Not type checking this file because flow doesn't like attaching
+ * properties to Elements.
+ */
+
+var directive = {
+  inserted: function inserted (el, binding, vnode, oldVnode) {
+    if (vnode.tag === 'select') {
+      // #6903
+      if (oldVnode.elm && !oldVnode.elm._vOptions) {
+        mergeVNodeHook(vnode, 'postpatch', function () {
+          directive.componentUpdated(el, binding, vnode);
+        });
+      } else {
+        setSelected(el, binding, vnode.context);
+      }
+      el._vOptions = [].map.call(el.options, getValue);
+    } else if (vnode.tag === 'textarea' || isTextInputType$1(el._attr.type)) {
+      el._vModifiers = binding.modifiers;
+      if (!binding.modifiers.lazy) {
+        el.addEventListener('change', onCompositionEnd);
+      }
+    }
+  },
+
+  componentUpdated: function componentUpdated (el, binding, vnode) {
+    if (vnode.tag === 'select') {
+      setSelected(el, binding, vnode.context);
+      var prevOptions = el._vOptions;
+      var curOptions = el._vOptions = [].map.call(el.options, getValue);
+      if (curOptions.some(function (o, i) { return !looseEqual(o, prevOptions[i]); })) {
+        // trigger change event if
+        // no matching option found for at least one value
+        var needReset = el.multiple
+          ? binding.value.some(function (v) { return hasNoMatchingOption(v, curOptions); })
+          : binding.value !== binding.oldValue && hasNoMatchingOption(binding.value, curOptions);
+        if (needReset) {
+          trigger(el, 'change');
+        }
+      }
+    }
+  }
+};
+
+function setSelected (el, binding, vm) {
+  actuallySetSelected(el, binding, vm);
+}
+
+function actuallySetSelected (el, binding, vm) {
+  var value = binding.value;
+  var isMultiple = el.multiple;
+  if (isMultiple && !Array.isArray(value)) {
+    "development" !== 'production' && warn(
+      "<select multiple v-model=\"" + (binding.expression) + "\"> " +
+      "expects an Array value for its binding, but got " + (Object.prototype.toString.call(value).slice(8, -1)),
+      vm
+    );
+    return
+  }
+  var selected, option;
+  for (var i = 0, l = el.options.length; i < l; i++) {
+    option = el.options[i];
+    if (isMultiple) {
+      selected = looseIndexOf(value, getValue(option)) > -1;
+      if (option.selected !== selected) {
+        option.selected = selected;
+      }
+    } else {
+      if (looseEqual(getValue(option), value)) {
+        if (el.selectedIndex !== i) {
+          el.selectedIndex = i;
+        }
+        return
+      }
+    }
+  }
+  if (!isMultiple) {
+    el.selectedIndex = -1;
+  }
+}
+
+function hasNoMatchingOption (value, options) {
+  return options.every(function (o) { return !looseEqual(o, value); })
+}
+
+function getValue (option) {
+  return '_value' in option
+    ? option._value
+    : option.value
+}
+
+function onCompositionEnd (e) {
+  // prevent triggering an input event for no reason
+  // if (!e.target.composing) return
+  e.target.composing = false;
+  trigger(e.target, 'input');
+}
+
+function trigger (el, type) {
+  var e = document.createEvent(type);
+  el.dispatchEvent(e);
+}
+
 var platformDirectives = {
+  model: directive
 };
 
 var platformComponents = {
@@ -6632,6 +6744,8 @@ function isEmptyObject (obj) {
 }
 
 /*  */
+
+extend(Vue$2.options.directives, platformDirectives);
 
 var accessors = ['public', 'protected', 'private'];
 

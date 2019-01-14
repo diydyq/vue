@@ -25,6 +25,11 @@ const weexFactoryPlugin = {
   }
 }
 
+const bannerQuickapp = `/*
+* Copyright (C) 2017, hapjs.org. All rights reserved.
+*/
+`
+
 const quickAppFactoryPlugin = {
   intro () {
     return 'module.exports = function quickAppFactory (exports, document) {'
@@ -182,7 +187,8 @@ const builds = {
     dest: resolve('packages/quickapp-vue-framework/factory.js'),
     env: 'development',
     format: 'cjs',
-    plugins: [quickAppFactoryPlugin]
+    plugins: [quickAppFactoryPlugin],
+    banner: bannerQuickapp
   },
   'quickapp-with-compiler': {
     quickapp: true,
@@ -190,7 +196,8 @@ const builds = {
     dest: resolve('packages/quickapp-vue-framework/factory-with-compiler.js'),
     env: 'development',
     format: 'cjs',
-    plugins: [quickAppFactoryPlugin]
+    plugins: [quickAppFactoryPlugin],
+    banner: bannerQuickapp
   }
 }
 
