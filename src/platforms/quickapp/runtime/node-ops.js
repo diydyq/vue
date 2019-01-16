@@ -4,6 +4,7 @@
 export const namespaceMap = {}
 
 export function createElement (tagName) {
+  // ****  TODO add context
   return document.createElement(tagName)
 }
 

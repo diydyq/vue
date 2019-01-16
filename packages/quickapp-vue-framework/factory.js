@@ -4944,6 +4944,7 @@ Vue$2.quickappVersion = '1.0.0';
 var namespaceMap = {};
 
 function createElement$1 (tagName) {
+  // ****  TODO add context
   return document.createElement(tagName)
 }
 
@@ -6123,10 +6124,6 @@ function add$1 (
   once,
   capture
 ) {
-  if (capture) {
-    console.log('Weex do not support event in bubble phase.');
-    return
-  }
   if (once) {
     var oldHandler = handler;
     var _target = target$1; // save current target element in closure
@@ -6139,7 +6136,7 @@ function add$1 (
       }
     };
   }
-  target$1.addEventListener(event, handler);
+  target$1.addEventListener(event, handler, capture);
 }
 
 function remove$2 (
@@ -6148,7 +6145,7 @@ function remove$2 (
   capture,
   _target
 ) {
-  (_target || target$1).removeEventListener(event);
+  (_target || target$1).removeEventListener(event, handler, capture);
 }
 
 function updateDOMListeners (oldVnode, vnode) {
