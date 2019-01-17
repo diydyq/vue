@@ -26,6 +26,8 @@ export const isRuntimeComponent = makeMap(
   true
 )
 
+export const isPreTag = tag => tag === 'pre'
+
 export const isUnaryTag = makeMap(
   'embed,img,image,input,link,meta',
   true

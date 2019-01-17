@@ -2,20 +2,15 @@
 // used to generate a fresh copy of Vue for every QuickApp instance.
 
 import config from 'core/config'
-import { warn, cached } from 'core/util/index'
+import { warn } from 'core/util/index'
 import { mark, measure } from 'core/util/perf'
 
 import Vue from './runtime/index'
 import { query } from './util/index'
-import { compileToFunctions } from '../../platforms/web/compiler/index'
+import { compileToFunctions } from './compiler/index'
 
 const shouldDecodeNewlines = false
 const shouldDecodeNewlinesForHref = false
-
-const idToTemplate = cached(id => {
-  const el = query(id)
-  return el && el.innerHTML
-})
 
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (el, hydrating) {
@@ -32,30 +27,7 @@ Vue.prototype.$mount = function (el, hydrating) {
   const options = this.$options
   // resolve template/el and convert to render function
   if (!options.render) {
-    let template = options.template
-    if (template) {
-      if (typeof template === 'string') {
-        if (template.charAt(0) === '#') {
-          template = idToTemplate(template)
-          /* istanbul ignore if */
-          if (process.env.NODE_ENV !== 'production' && !template) {
-            warn(
-              `Template element not found or is empty: ${options.template}`,
-              this
-            )
-          }
-        }
-      } else if (template.nodeType) {
-        template = template.innerHTML
-      } else {
-        if (process.env.NODE_ENV !== 'production') {
-          warn('invalid template option:' + template, this)
-        }
-        return this
-      }
-    } else if (el) {
-      template = getOuterHTML(el)
-    }
+    const template = options.template
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -79,20 +51,6 @@ Vue.prototype.$mount = function (el, hydrating) {
     }
   }
   return mount.call(this, el, hydrating)
-}
-
-/**
- * Get outerHTML of elements, taking care
- * of SVG elements in IE as well.
- */
-function getOuterHTML (el) {
-  if (el.outerHTML) {
-    return el.outerHTML
-  } else {
-    const container = document.createElement('div')
-    container.appendChild(el.cloneNode(true))
-    return container.innerHTML
-  }
 }
 
 Vue.compile = compileToFunctions

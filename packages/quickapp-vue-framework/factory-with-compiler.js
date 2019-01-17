@@ -5089,22 +5089,11 @@ var isSVG = makeMap(
   true
 );
 
-var isPreTag = function (tag) { return tag === 'pre'; };
 
-var isReservedTag = function (tag) {
-  return isHTMLTag(tag) || isSVG(tag)
-};
 
-function getTagNamespace (tag) {
-  if (isSVG(tag)) {
-    return 'svg'
-  }
-  // basic support for MathML
-  // note it doesn't support other MathML elements being component roots
-  if (tag === 'math') {
-    return 'math'
-  }
-}
+
+
+
 
 
 
@@ -6072,6 +6061,8 @@ var isRuntimeComponent = makeMap(
   true
 );
 
+var isPreTag$1 = function (tag) { return tag === 'pre'; };
+
 var isUnaryTag = makeMap(
   'embed,img,image,input,link,meta',
   true
@@ -6082,7 +6073,7 @@ var isTextInputType$1 = makeMap(
 );
 
 function mustUseProp () { /* console.log('mustUseProp') */ }
-
+function getTagNamespace$1 () { /* console.log('getTagNamespace') */ }
 function isUnknownElement$1 () { /* console.log('isUnknownElement') */ }
 
 function query (el, document) {
@@ -6921,42 +6912,6 @@ Vue$2.prototype.$connectLifecycle = function (options) {
   options.beforeDestroy = Array.isArray(options.beforeDestroy) ? options.beforeDestroy : [options.beforeDestroy];
   options.beforeDestroy.push(pageDestroyHook);
 };
-
-/*  */
-
-// these are reserved for web because they are directly compiled away
-// during template compilation
-var isReservedAttr = makeMap('style,class');
-
-// attributes that should be using props for binding
-var acceptValue = makeMap('input,textarea,option,select,progress');
-var mustUseProp$1 = function (tag, type, attr) {
-  return (
-    (attr === 'value' && acceptValue(tag)) && type !== 'button' ||
-    (attr === 'selected' && tag === 'option') ||
-    (attr === 'checked' && tag === 'input') ||
-    (attr === 'muted' && tag === 'video')
-  )
-};
-
-var isEnumeratedAttr = makeMap('contenteditable,draggable,spellcheck');
-
-var isBooleanAttr = makeMap(
-  'allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,' +
-  'default,defaultchecked,defaultmuted,defaultselected,defer,disabled,' +
-  'enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,' +
-  'muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,' +
-  'required,reversed,scoped,seamless,selected,sortable,translate,' +
-  'truespeed,typemustmatch,visible'
-);
-
-/*  */
-
-/*  */
-
-/**
- * Query an element selector if it's not an element already.
- */
 
 /*  */
 
@@ -8594,7 +8549,7 @@ function genCheckboxModel (
   var valueBinding = getBindingAttr(el, 'value') || 'null';
   var trueValueBinding = getBindingAttr(el, 'true-value') || 'true';
   var falseValueBinding = getBindingAttr(el, 'false-value') || 'false';
-  addProp(el, 'checked',
+  addAttr(el, 'checked',
     "Array.isArray(" + value + ")" +
       "?_i(" + value + "," + valueBinding + ")>-1" + (
         trueValueBinding === 'true'
@@ -8604,7 +8559,7 @@ function genCheckboxModel (
   );
   addHandler(el, 'change',
     "var $$a=" + value + "," +
-        '$$el=$event.target,' +
+        '$$el=$event.target._attr,' +
         "$$c=$$el.checked?(" + trueValueBinding + "):(" + falseValueBinding + ");" +
     'if(Array.isArray($$a)){' +
       "var $$v=" + (number ? '_n(' + valueBinding + ')' : valueBinding) + "," +
@@ -8624,7 +8579,7 @@ function genRadioModel (
   var number = modifiers && modifiers.number;
   var valueBinding = getBindingAttr(el, 'value') || 'null';
   valueBinding = number ? ("_n(" + valueBinding + ")") : valueBinding;
-  addProp(el, 'checked', ("_q(" + value + "," + valueBinding + ")"));
+  addAttr(el, 'checked', ("_q(" + value + "," + valueBinding + ")"));
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true);
 }
 
@@ -8662,9 +8617,9 @@ function genDefaultModel (
       ? RANGE_TOKEN
       : 'input';
 
-  var valueExpression = '$event.target.value';
+  var valueExpression = '$event.target._attr.value';
   if (trim) {
-    valueExpression = "$event.target.value.trim()";
+    valueExpression = "$event.target._attr.value.trim()";
   }
   if (number) {
     valueExpression = "_n(" + valueExpression + ")";
@@ -8675,33 +8630,15 @@ function genDefaultModel (
     code = "if($event.target.composing)return;" + code;
   }
 
-  addProp(el, 'value', ("(" + value + ")"));
+  addAttr(el, 'value', ("(" + value + ")"));
   addHandler(el, event, code, null, true);
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()');
   }
 }
 
-/*  */
-
-function text (el, dir) {
-  if (dir.value) {
-    addProp(el, 'textContent', ("_s(" + (dir.value) + ")"));
-  }
-}
-
-/*  */
-
-function html (el, dir) {
-  if (dir.value) {
-    addProp(el, 'innerHTML', ("_s(" + (dir.value) + ")"));
-  }
-}
-
 var directives$1 = {
-  model: model$2,
-  text: text,
-  html: html
+  model: model$2
 };
 
 /*  */
@@ -8710,12 +8647,12 @@ var baseOptions = {
   expectHTML: true,
   modules: modules$1,
   directives: directives$1,
-  isPreTag: isPreTag,
-  isUnaryTag: isUnaryTag$1,
-  mustUseProp: mustUseProp$1,
-  canBeLeftOpenTag: canBeLeftOpenTag$1,
-  isReservedTag: isReservedTag,
-  getTagNamespace: getTagNamespace,
+  isPreTag: isPreTag$1,
+  isUnaryTag: isUnaryTag,
+  mustUseProp: mustUseProp,
+  canBeLeftOpenTag: canBeLeftOpenTag,
+  isReservedTag: isReservedTag$1,
+  getTagNamespace: getTagNamespace$1,
   staticKeys: genStaticKeys(modules$1)
 };
 
@@ -9728,11 +9665,6 @@ var compileToFunctions = ref$1.compileToFunctions;
 var shouldDecodeNewlines = false;
 var shouldDecodeNewlinesForHref = false;
 
-var idToTemplate = cached(function (id) {
-  var el = query(id);
-  return el && el.innerHTML
-});
-
 var mount = Vue$2.prototype.$mount;
 Vue$2.prototype.$mount = function (el, hydrating) {
   el = el && query(el);
@@ -9749,29 +9681,6 @@ Vue$2.prototype.$mount = function (el, hydrating) {
   // resolve template/el and convert to render function
   if (!options.render) {
     var template = options.template;
-    if (template) {
-      if (typeof template === 'string') {
-        if (template.charAt(0) === '#') {
-          template = idToTemplate(template);
-          /* istanbul ignore if */
-          if ("development" !== 'production' && !template) {
-            warn(
-              ("Template element not found or is empty: " + (options.template)),
-              this
-            );
-          }
-        }
-      } else if (template.nodeType) {
-        template = template.innerHTML;
-      } else {
-        {
-          warn('invalid template option:' + template, this);
-        }
-        return this
-      }
-    } else if (el) {
-      template = getOuterHTML(el);
-    }
     if (template) {
       /* istanbul ignore if */
       if ("development" !== 'production' && config.performance && mark) {
@@ -9798,20 +9707,6 @@ Vue$2.prototype.$mount = function (el, hydrating) {
   }
   return mount.call(this, el, hydrating)
 };
-
-/**
- * Get outerHTML of elements, taking care
- * of SVG elements in IE as well.
- */
-function getOuterHTML (el) {
-  if (el.outerHTML) {
-    return el.outerHTML
-  } else {
-    var container = document.createElement('div');
-    container.appendChild(el.cloneNode(true));
-    return container.innerHTML
-  }
-}
 
 Vue$2.compile = compileToFunctions;
 
