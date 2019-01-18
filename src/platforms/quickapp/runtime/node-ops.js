@@ -1,11 +1,14 @@
 /* globals document */
-// document is injected by weex factory wrapper
+/* globals bindElementMethods */
+// document && bindElementMethods are injected by quickapp factory wrapper
 
 export const namespaceMap = {}
 
 export function createElement (tagName) {
-  // ****  TODO add context
-  return document.createElement(tagName)
+  // TODO: 添加上下文
+  const element = document.createElement(tagName)
+  bindElementMethods(element)
+  return element
 }
 
 export function createElementNS (namespace, tagName) {

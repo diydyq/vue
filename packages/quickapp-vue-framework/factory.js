@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function quickAppFactory (exports, document) {
+module.exports = function quickAppFactory (exports, document, bindElementMethods) {
 
 /*  */
 
@@ -4939,13 +4939,16 @@ Vue$2.version = '2.5.3';
 Vue$2.quickappVersion = '1.0.0';
 
 /* globals document */
-// document is injected by weex factory wrapper
+/* globals bindElementMethods */
+// document && bindElementMethods are injected by quickapp factory wrapper
 
 var namespaceMap = {};
 
 function createElement$1 (tagName) {
-  // ****  TODO add context
-  return document.createElement(tagName)
+  // TODO: 添加上下文
+  var element = document.createElement(tagName);
+  bindElementMethods(element);
+  return element
 }
 
 function createElementNS (namespace, tagName) {
