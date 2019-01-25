@@ -6916,6 +6916,14 @@ Vue$2.prototype.$connectLifecycle = function (options) {
   options.beforeDestroy.push(pageDestroyHook);
 };
 
+Vue$2.$setDoc = function (doc, bem) {
+  /* eslint-disable */
+  document = doc;
+  bindElementMethods = bem;
+  /* eslint-enable */
+  return Vue$2
+};
+
 /*  */
 
 var validDivisionCharRE = /[\w).+\-_$\]]/;
