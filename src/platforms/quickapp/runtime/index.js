@@ -174,12 +174,4 @@ Vue.prototype.$connectLifecycle = function (options) {
   options.beforeDestroy.push(pageDestroyHook)
 }
 
-Vue.$setDoc = function (doc, bem) {
-  /* eslint-disable */
-  document = doc
-  bindElementMethods = bem
-  /* eslint-enable */
-  return Vue
-}
-
 export default Vue
