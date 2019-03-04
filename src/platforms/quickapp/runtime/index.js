@@ -57,7 +57,7 @@ Vue.prototype.initExternalData = function () {
   if (this.$options.type !== 'page') {
     return
   }
-  if (externalData) {
+  if (!externalData) {
     return
   }
   if (!this.$options._descriptor) {
