@@ -17,9 +17,8 @@ function add (
       const res = arguments.length === 1
         ? oldHandler(ev)
         : oldHandler.apply(null, arguments)
-      if (res !== null) {
-        remove(event, null, null, _target)
-      }
+      remove(event, handler, capture, _target)
+      return res
     }
   }
   target.addEventListener(event, handler, capture)

@@ -6136,9 +6136,8 @@ function add$1 (
       var res = arguments.length === 1
         ? oldHandler(ev)
         : oldHandler.apply(null, arguments);
-      if (res !== null) {
-        remove$2(event, null, null, _target);
-      }
+      remove$2(event, handler, capture, _target);
+      return res
     };
   }
   target$1.addEventListener(event, handler, capture);
@@ -6789,7 +6788,7 @@ Vue$2.prototype.initExternalData = function () {
   if (this.$options.type !== 'page') {
     return
   }
-  if (externalData) {
+  if (!externalData) {
     return
   }
   if (!this.$options._descriptor) {
