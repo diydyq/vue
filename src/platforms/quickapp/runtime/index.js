@@ -17,7 +17,9 @@ import {
 
 import { $extend, isEmptyObject } from './utils'
 
+// install platform runtime directives and components
 extend(Vue.options.directives, platformDirectives)
+extend(Vue.options.components, platformComponents)
 
 const accessors = ['public', 'protected', 'private']
 
@@ -26,10 +28,6 @@ Vue.config.mustUseProp = mustUseProp
 Vue.config.isReservedTag = isReservedTag
 Vue.config.isRuntimeComponent = isRuntimeComponent
 Vue.config.isUnknownElement = isUnknownElement
-
-// install platform runtime directives and components
-Vue.options.directives = platformDirectives
-Vue.options.components = platformComponents
 
 // install platform patch function
 Vue.prototype.__patch__ = patch

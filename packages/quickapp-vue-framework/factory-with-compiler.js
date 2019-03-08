@@ -6754,7 +6754,9 @@ function isEmptyObject (obj) {
 
 /*  */
 
+// install platform runtime directives and components
 extend(Vue$2.options.directives, platformDirectives);
+extend(Vue$2.options.components, platformComponents);
 
 var accessors = ['public', 'protected', 'private'];
 
@@ -6763,10 +6765,6 @@ Vue$2.config.mustUseProp = mustUseProp;
 Vue$2.config.isReservedTag = isReservedTag$1;
 Vue$2.config.isRuntimeComponent = isRuntimeComponent;
 Vue$2.config.isUnknownElement = isUnknownElement$1;
-
-// install platform runtime directives and components
-Vue$2.options.directives = platformDirectives;
-Vue$2.options.components = platformComponents;
 
 // install platform patch function
 Vue$2.prototype.__patch__ = patch;
