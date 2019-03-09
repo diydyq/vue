@@ -8549,7 +8549,7 @@ function genCheckboxModel (
   var valueBinding = getBindingAttr(el, 'value') || 'null';
   var trueValueBinding = getBindingAttr(el, 'true-value') || 'true';
   var falseValueBinding = getBindingAttr(el, 'false-value') || 'false';
-  addAttr(el, 'checked',
+  addProp(el, 'checked',
     "Array.isArray(" + value + ")" +
       "?_i(" + value + "," + valueBinding + ")>-1" + (
         trueValueBinding === 'true'
@@ -8559,7 +8559,7 @@ function genCheckboxModel (
   );
   addHandler(el, 'change',
     "var $$a=" + value + "," +
-        '$$el=$event.target._attr,' +
+        '$$el=$event.target,' +
         "$$c=$$el.checked?(" + trueValueBinding + "):(" + falseValueBinding + ");" +
     'if(Array.isArray($$a)){' +
       "var $$v=" + (number ? '_n(' + valueBinding + ')' : valueBinding) + "," +
@@ -8579,7 +8579,7 @@ function genRadioModel (
   var number = modifiers && modifiers.number;
   var valueBinding = getBindingAttr(el, 'value') || 'null';
   valueBinding = number ? ("_n(" + valueBinding + ")") : valueBinding;
-  addAttr(el, 'checked', ("_q(" + value + "," + valueBinding + ")"));
+  addProp(el, 'checked', ("_q(" + value + "," + valueBinding + ")"));
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true);
 }
 
@@ -8617,9 +8617,9 @@ function genDefaultModel (
       ? RANGE_TOKEN
       : 'input';
 
-  var valueExpression = '$event.target._attr.value';
+  var valueExpression = '$event.target.value';
   if (trim) {
-    valueExpression = "$event.target._attr.value.trim()";
+    valueExpression = "$event.target.value.trim()";
   }
   if (number) {
     valueExpression = "_n(" + valueExpression + ")";
@@ -8630,7 +8630,7 @@ function genDefaultModel (
     code = "if($event.target.composing)return;" + code;
   }
 
-  addAttr(el, 'value', ("(" + value + ")"));
+  addProp(el, 'value', ("(" + value + ")"));
   addHandler(el, event, code, null, true);
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()');

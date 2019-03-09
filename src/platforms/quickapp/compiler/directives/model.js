@@ -1,7 +1,7 @@
 /* @flow */
 
 import config from 'core/config'
-import { addHandler, getBindingAttr, addAttr } from 'compiler/helpers'
+import { addHandler, getBindingAttr, addProp } from 'compiler/helpers'
 import { genComponentModel, genAssignmentCode } from 'compiler/directives/model'
 
 let warn
@@ -71,7 +71,7 @@ function genCheckboxModel (
   const valueBinding = getBindingAttr(el, 'value') || 'null'
   const trueValueBinding = getBindingAttr(el, 'true-value') || 'true'
   const falseValueBinding = getBindingAttr(el, 'false-value') || 'false'
-  addAttr(el, 'checked',
+  addProp(el, 'checked',
     `Array.isArray(${value})` +
       `?_i(${value},${valueBinding})>-1` + (
         trueValueBinding === 'true'
@@ -81,7 +81,7 @@ function genCheckboxModel (
   )
   addHandler(el, 'change',
     `var $$a=${value},` +
-        '$$el=$event.target._attr,' +
+        '$$el=$event.target,' +
         `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` +
     'if(Array.isArray($$a)){' +
       `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` +
@@ -101,7 +101,7 @@ function genRadioModel (
   const number = modifiers && modifiers.number
   let valueBinding = getBindingAttr(el, 'value') || 'null'
   valueBinding = number ? `_n(${valueBinding})` : valueBinding
-  addAttr(el, 'checked', `_q(${value},${valueBinding})`)
+  addProp(el, 'checked', `_q(${value},${valueBinding})`)
   addHandler(el, 'change', genAssignmentCode(value, valueBinding), null, true)
 }
 
@@ -136,9 +136,9 @@ function genDefaultModel (
       ? RANGE_TOKEN
       : 'input'
 
-  let valueExpression = '$event.target._attr.value'
+  let valueExpression = '$event.target.value'
   if (trim) {
-    valueExpression = `$event.target._attr.value.trim()`
+    valueExpression = `$event.target.value.trim()`
   }
   if (number) {
     valueExpression = `_n(${valueExpression})`
@@ -149,7 +149,7 @@ function genDefaultModel (
     code = `if($event.target.composing)return;${code}`
   }
 
-  addAttr(el, 'value', `(${value})`)
+  addProp(el, 'value', `(${value})`)
   addHandler(el, event, code, null, true)
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()')
