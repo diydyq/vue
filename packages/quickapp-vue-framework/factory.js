@@ -6866,43 +6866,43 @@ Vue$2.prototype.$connectLifecycle = function (options) {
   // onReady 放到 Vue mounted钩子中执行
   var pageReadyHook = function () {
     this$1._ready = true;
-    var readyHook = options.onReady;
-    if (readyHook && typeof readyHook === 'function') {
-      readyHook.call(this$1);
-    }
+    // const readyHook = options.onReady
+    // if (readyHook && typeof readyHook === 'function') {
+    //   readyHook.call(this)
+    // }
   };
   options.mounted = options.mounted || [];
   options.mounted = Array.isArray(options.mounted) ? options.mounted : [options.mounted];
   options.mounted.push(pageReadyHook);
 
-  // onInit 放到 Vue 的beforeCreate钩子中执行
-  var pageInitHook = function () {
-    var initHook = options.onInit;
-    if (initHook && typeof initHook === 'function') {
-      initHook.call(this$1);
-    }
-  };
+  // // onInit 放到 Vue 的beforeCreate钩子中执行
+  // const pageInitHook = () => {
+  //   const initHook = options.onInit
+  //   if (initHook && typeof initHook === 'function') {
+  //     initHook.call(this)
+  //   }
+  // }
 
-  var initExternalData = function () {
-    // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
-    this$1.initExternalData();
-  };
+  // const initExternalData = () => {
+  //   // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
+  //   this.initExternalData()
+  // }
 
-  options.created = options.created || [];
-  options.created = Array.isArray(options.created) ? options.created : [options.created];
-  options.created.push(pageInitHook);
-  options.created.push(initExternalData);
+  // options.created = options.created || []
+  // options.created = Array.isArray(options.created) ? options.created : [options.created]
+  // options.created.push(pageInitHook)
+  // options.created.push(initExternalData)
 
-  // onDestroy 放到 Vue 的beforeDestroy钩子中执行
-  var pageDestroyHook = function () {
-    var destroyHook = options.onDestroy;
-    if (destroyHook && typeof destroyHook === 'function') {
-      destroyHook.call(this$1);
-    }
-  };
-  options.beforeDestroy = options.beforeDestroy || [];
-  options.beforeDestroy = Array.isArray(options.beforeDestroy) ? options.beforeDestroy : [options.beforeDestroy];
-  options.beforeDestroy.push(pageDestroyHook);
+  // // onDestroy 放到 Vue 的beforeDestroy钩子中执行
+  // const pageDestroyHook = () => {
+  //   const destroyHook = options.onDestroy
+  //   if (destroyHook && typeof destroyHook === 'function') {
+  //     destroyHook.call(this)
+  //   }
+  // }
+  // options.beforeDestroy = options.beforeDestroy || []
+  // options.beforeDestroy = Array.isArray(options.beforeDestroy) ? options.beforeDestroy : [options.beforeDestroy]
+  // options.beforeDestroy.push(pageDestroyHook)
 };
 
 // this entry is built and wrapped with a factory function
