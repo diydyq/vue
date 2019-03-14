@@ -43,14 +43,14 @@ Vue.prototype.$mount = function (el, hydrating) {
   )
   // 将页面与根VM链接
   if (type === 'page') {
-    this.$connectVm2Page && this.$connectVm2Page()
-    this.$registerPageLifecycle && this.$registerPageLifecycle()
+    this._connectVm2Page && this._connectVm2Page()
+    this._registerPageLifecycle && this._registerPageLifecycle()
   }
 
   return component
 }
 
-Vue.prototype.initExternalData = function () {
+Vue.prototype._initExternalData = function () {
   const externalData = Vue.config.externalData
   if (this.$options.type !== 'page') {
     return
@@ -92,7 +92,7 @@ Vue.prototype.initExternalData = function () {
   }
 }
 
-Vue.prototype.$mergeAccess2Data = function (options) {
+Vue.prototype._mergeAccess2Data = function (options) {
   if (typeof options.data === 'function') {
     options.data = options.data()
   }
@@ -123,13 +123,13 @@ Vue.prototype._init = function (options) {
   const vm = this
   const $options = vm.constructor.options
   if ($options.type === 'page') {
-    this.$connectLifecycle && this.$connectLifecycle($options)
-    this.$mergeAccess2Data && this.$mergeAccess2Data($options)
+    this._connectLifecycle && this._connectLifecycle($options)
+    this._mergeAccess2Data && this._mergeAccess2Data($options)
   }
   _init.call(this, options)
 }
 
-Vue.prototype.$connectLifecycle = function (options) {
+Vue.prototype._connectLifecycle = function (options) {
   // onReady 放到 Vue mounted钩子中执行
   const pageReadyHook = () => {
     this._ready = true
@@ -142,7 +142,7 @@ Vue.prototype.$connectLifecycle = function (options) {
   options.mounted = Array.isArray(options.mounted) ? options.mounted : [options.mounted]
   options.mounted.push(pageReadyHook)
 
-  // // onInit 放到 Vue 的beforeCreate钩子中执行
+  // // onInit 放到 Vue 的created钩子中执行
   // const pageInitHook = () => {
   //   const initHook = options.onInit
   //   if (initHook && typeof initHook === 'function') {
@@ -150,15 +150,14 @@ Vue.prototype.$connectLifecycle = function (options) {
   //   }
   // }
 
-  // const initExternalData = () => {
-  //   // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
-  //   this.initExternalData()
-  // }
+  const initExternalData = () => {
+    // 将page与Vue的vm实例，用于权限控制 initExternalData 方法调用
+    this._initExternalData()
+  }
 
-  // options.created = options.created || []
-  // options.created = Array.isArray(options.created) ? options.created : [options.created]
-  // options.created.push(pageInitHook)
-  // options.created.push(initExternalData)
+  options.created = options.created || []
+  options.created = Array.isArray(options.created) ? options.created : [options.created]
+  options.created.push(initExternalData)
 
   // // onDestroy 放到 Vue 的beforeDestroy钩子中执行
   // const pageDestroyHook = () => {
