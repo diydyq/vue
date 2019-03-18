@@ -6710,8 +6710,45 @@ function trigger (el, type) {
   el.dispatchEvent(e);
 }
 
+/**
+ * not support trasition yet
+ */
+var show = {
+  bind: function bind (el, ref, vnode) {
+    var value = ref.value;
+
+    var originalDisplay = el.__vOriginalDisplay =
+      el.style.display === 'none' ? '' : (el.style.display || '');
+    console.log(el.__vOriginalDisplay, 'bind');
+    el.setStyle('display', value ? originalDisplay : 'none');
+  },
+
+  update: function update (el, ref, vnode) {
+    var value = ref.value;
+    var oldValue = ref.oldValue;
+
+    if (value === oldValue) { return }
+    console.log(el.__vOriginalDisplay, 'update');
+    el.setStyle('display', value ? el.__vOriginalDisplay : 'none');
+  },
+
+  unbind: function unbind (
+    el,
+    binding,
+    vnode,
+    oldVnode,
+    isDestroy
+  ) {
+    if (!isDestroy) {
+      console.log(el.__vOriginalDisplay, 'unbind');
+      el.setStyle('display', el.__vOriginalDisplay);
+    }
+  }
+};
+
 var platformDirectives = {
-  model: directive
+  model: directive,
+  show: show
 };
 
 var platformComponents = {
