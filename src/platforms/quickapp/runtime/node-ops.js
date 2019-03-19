@@ -1,13 +1,11 @@
 /* globals document */
-/* globals bindElementMethods */
-// document && bindElementMethods are injected by quickapp factory wrapper
+/* globals quickappHelper */
 
 export const namespaceMap = {}
 
 export function createElement (tagName) {
-  // TODO: 添加上下文
   const element = document.createElement(tagName)
-  bindElementMethods(element)
+  quickappHelper.bindElementMethods(element)
   return element
 }
 
@@ -49,9 +47,9 @@ export function tagName (node) {
 }
 
 export function setTextContent (node, text) {
-  node.parentNode.setAttr('value', text)
+  quickappHelper.setElementAttr(node.parentNode, 'value', text)
 }
 
 export function setAttribute (node, key, val) {
-  node.setAttr(key, val)
+  quickappHelper.setElementAttr(node, key, val)
 }

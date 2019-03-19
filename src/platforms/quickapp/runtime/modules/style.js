@@ -1,4 +1,5 @@
 /* @flow */
+/* globals quickappHelper */
 
 import { extend, cached, camelize } from 'shared/util'
 
@@ -13,7 +14,7 @@ function createStyle (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   const staticStyle = vnode.data.staticStyle
   for (const name in staticStyle) {
     if (staticStyle[name]) {
-      elm.setStyle(normalize(name), staticStyle[name])
+      quickappHelper.setElementStyle(elm, normalize(name), staticStyle[name])
     }
   }
   updateStyle(oldVnode, vnode)
@@ -43,12 +44,12 @@ function updateStyle (oldVnode: VNodeWithData, vnode: VNodeWithData) {
 
   for (name in oldStyle) {
     if (!style[name]) {
-      elm.setStyle(normalize(name), '')
+      quickappHelper.setElementStyle(elm, normalize(name), '')
     }
   }
   for (name in style) {
     cur = style[name]
-    elm.setStyle(normalize(name), cur)
+    quickappHelper.setElementStyle(elm, normalize(name), cur)
   }
 }
 

@@ -32,7 +32,7 @@ const bannerQuickapp = `/*
 
 const quickAppFactoryPlugin = {
   intro () {
-    return 'module.exports = function quickAppFactory (exports, document, bindElementMethods) {'
+    return 'module.exports = function quickAppFactory (exports, document, quickappHelper) {'
   },
   outro () {
     return '}'

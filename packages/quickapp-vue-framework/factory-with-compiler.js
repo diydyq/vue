@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function quickAppFactory (exports, document, bindElementMethods) {
+module.exports = function quickAppFactory (exports, document, quickappHelper) {
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
@@ -4947,15 +4947,13 @@ Vue$2.version = '2.5.3';
 Vue$2.quickappVersion = '1.0.0';
 
 /* globals document */
-/* globals bindElementMethods */
-// document && bindElementMethods are injected by quickapp factory wrapper
+/* globals quickappHelper */
 
 var namespaceMap = {};
 
 function createElement$1 (tagName) {
-  // TODO: 添加上下文
   var element = document.createElement(tagName);
-  bindElementMethods(element);
+  quickappHelper.bindElementMethods(element);
   return element
 }
 
@@ -4997,11 +4995,11 @@ function tagName (node) {
 }
 
 function setTextContent (node, text) {
-  node.parentNode.setAttr('value', text);
+  quickappHelper.setElementAttr(node.parentNode, 'value', text);
 }
 
 function setAttribute (node, key, val) {
-  node.setAttr(key, val);
+  quickappHelper.setElementAttr(node, key, val);
 }
 
 
@@ -5942,13 +5940,11 @@ function updateAttrs (oldVnode, vnode) {
     cur = attrs[key];
     old = oldAttrs[key];
     if (old !== cur) {
-      // elm.setAttr(key, cur)
       setAttribute(elm, key, cur);
     }
   }
   for (key in oldAttrs) {
     if (attrs[key] == null) {
-      // elm.setAttr(key)
       setAttribute(elm, key, '');
     }
   }
@@ -6177,6 +6173,7 @@ var events = {
 };
 
 /*  */
+/* globals quickappHelper */
 
 var normalize = cached(camelize);
 
@@ -6189,7 +6186,7 @@ function createStyle (oldVnode, vnode) {
   var staticStyle = vnode.data.staticStyle;
   for (var name in staticStyle) {
     if (staticStyle[name]) {
-      elm.setStyle(normalize(name), staticStyle[name]);
+      quickappHelper.setElementStyle(elm, normalize(name), staticStyle[name]);
     }
   }
   updateStyle(oldVnode, vnode);
@@ -6219,12 +6216,12 @@ function updateStyle (oldVnode, vnode) {
 
   for (name in oldStyle) {
     if (!style[name]) {
-      elm.setStyle(normalize(name), '');
+      quickappHelper.setElementStyle(elm, normalize(name), '');
     }
   }
   for (name in style) {
     cur = style[name];
-    elm.setStyle(normalize(name), cur);
+    quickappHelper.setElementStyle(elm, normalize(name), cur);
   }
 }
 
@@ -6718,17 +6715,15 @@ function trigger (el, type) {
   el.dispatchEvent(e);
 }
 
-/**
- * not support trasition yet
- */
+/* globals quickappHelper */
+
 var show = {
   bind: function bind (el, ref, vnode) {
     var value = ref.value;
 
     var originalDisplay = el.__vOriginalDisplay =
       el.style.display === 'none' ? '' : (el.style.display || '');
-    console.log(el.__vOriginalDisplay, 'bind');
-    el.setStyle('display', value ? originalDisplay : 'none');
+    quickappHelper.setElementStyle(el, 'display', value ? originalDisplay : 'none');
   },
 
   update: function update (el, ref, vnode) {
@@ -6736,8 +6731,7 @@ var show = {
     var oldValue = ref.oldValue;
 
     if (value === oldValue) { return }
-    console.log(el.__vOriginalDisplay, 'update');
-    el.setStyle('display', value ? el.__vOriginalDisplay : 'none');
+    quickappHelper.setElementStyle(el, 'display', value ? el.__vOriginalDisplay : 'none');
   },
 
   unbind: function unbind (
@@ -6748,8 +6742,7 @@ var show = {
     isDestroy
   ) {
     if (!isDestroy) {
-      console.log(el.__vOriginalDisplay, 'unbind');
-      el.setStyle('display', el.__vOriginalDisplay);
+      quickappHelper.setElementStyle(el, 'display', el.__vOriginalDisplay);
     }
   }
 };
