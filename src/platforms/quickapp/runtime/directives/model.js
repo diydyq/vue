@@ -20,7 +20,7 @@ const directive = {
         setSelected(el, binding, vnode.context)
       }
       el._vOptions = [].map.call(el.options, getValue)
-    } else if (vnode.tag === 'textarea' || isTextInputType(el._attr.type)) {
+    } else if (vnode.tag === 'textarea' || isTextInputType(el.attr.type)) {
       el._vModifiers = binding.modifiers
       if (!binding.modifiers.lazy) {
         el.addEventListener('change', onCompositionEnd)
