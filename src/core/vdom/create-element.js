@@ -31,6 +31,16 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode {
+
+  if (context.$options._scopeId) {
+    if (data && data.staticClass) {
+      data.staticClass = data.staticClass.split(' ').map(item => context.$options._scopeId + '-' + item).join(' ')
+    }
+    if (data && data.class) {
+      data.class = data.class.split(' ').map(item => context.$options._scopeId + '-' + item).join(' ')
+    }
+  }
+
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data

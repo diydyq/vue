@@ -26,9 +26,15 @@ export const isRuntimeComponent = makeMap(
   true
 )
 
+export const isPreTag = tag => tag === 'pre'
+
 export const isUnaryTag = makeMap(
   'embed,img,image,input,link,meta',
   true
+)
+
+export const isTextInputType = makeMap(
+  'text,number,password,search,email,tel,url'
 )
 
 export function mustUseProp () { /* console.log('mustUseProp') */ }
@@ -36,9 +42,10 @@ export function getTagNamespace () { /* console.log('getTagNamespace') */ }
 export function isUnknownElement () { /* console.log('isUnknownElement') */ }
 
 export function query (el, document) {
-  const nodeBody = document.createElement('div')
-  document.documentElement.appendChild(nodeBody)
-
+  if (typeof el === 'object' && el !== null) {
+    return el
+  }
+  const nodeBody = document.body
   const nodeAttach = document.createElement('div')
   nodeBody.appendChild(nodeAttach)
   return nodeAttach

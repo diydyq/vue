@@ -10,10 +10,6 @@ function add (
   once: boolean,
   capture: boolean
 ) {
-  if (capture) {
-    console.log('Weex do not support event in bubble phase.')
-    return
-  }
   if (once) {
     const oldHandler = handler
     const _target = target // save current target element in closure
@@ -21,12 +17,11 @@ function add (
       const res = arguments.length === 1
         ? oldHandler(ev)
         : oldHandler.apply(null, arguments)
-      if (res !== null) {
-        remove(event, null, null, _target)
-      }
+      remove(event, handler, capture, _target)
+      return res
     }
   }
-  target.addEventListener(event, handler)
+  target.addEventListener(event, handler, capture)
 }
 
 function remove (
@@ -35,7 +30,7 @@ function remove (
   capture: any,
   _target?: any
 ) {
-  (_target || target).removeEventListener(event)
+  (_target || target).removeEventListener(event, handler, capture)
 }
 
 function updateDOMListeners (oldVnode: VNodeWithData, vnode: VNodeWithData) {

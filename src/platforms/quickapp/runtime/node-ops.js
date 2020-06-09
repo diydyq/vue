@@ -1,10 +1,12 @@
 /* globals document */
-// document is injected by weex factory wrapper
+/* globals quickappHelper */
 
 export const namespaceMap = {}
 
 export function createElement (tagName) {
-  return document.createElement(tagName)
+  const element = document.createElement(tagName)
+  quickappHelper.bindElementMethods(element)
+  return element
 }
 
 export function createElementNS (namespace, tagName) {
@@ -45,9 +47,9 @@ export function tagName (node) {
 }
 
 export function setTextContent (node, text) {
-  node.parentNode.setAttr('value', text)
+  quickappHelper.setElementAttr(node.parentNode, 'value', text)
 }
 
 export function setAttribute (node, key, val) {
-  node.setAttr(key, val)
+  quickappHelper.setElementAttr(node, key, val)
 }

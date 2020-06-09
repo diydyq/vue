@@ -103,7 +103,7 @@ function enter (_, vnode) {
     enterHook && enterHook(el, cb)
 
     if (needAnimation) {
-      const animation = vnode.context.$requireWeexModule('animation')
+      const animation = vnode.context.$requireQuickappModule('animation')
       animation.transition(el.ref, {
         styles: endState,
         duration: transitionProperties.duration || 0,
@@ -189,7 +189,7 @@ function leave (vnode, rm) {
   }
 
   function performLeave () {
-    const animation = vnode.context.$requireWeexModule('animation')
+    const animation = vnode.context.$requireQuickappModule('animation')
     // the delayed leave may have already been cancelled
     if (cb.cancelled) {
       return
@@ -244,7 +244,7 @@ function getEnterTargetState (el, stylesheet, startClass, endClass, activeClass,
           `transition property "${key}" is declared in enter starting class (.${startClass}), ` +
           `but not declared anywhere in enter ending class (.${endClass}), ` +
           `enter active cass (.${activeClass}) or the element's default styling. ` +
-          `Note in Weex, CSS properties need explicit values to be transitionable.`
+          `Note in Quickapp, CSS properties need explicit values to be transitionable.`
         )
       }
     }

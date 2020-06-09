@@ -1,9 +1,9 @@
 /* @flow */
 
-import * as nodeOps from 'hap/runtime/node-ops'
+import * as nodeOps from 'quickapp/runtime/node-ops'
 import { createPatchFunction } from 'core/vdom/patch'
 import baseModules from 'core/vdom/modules/index'
-import platformModules from 'hap/runtime/modules/index'
+import platformModules from 'quickapp/runtime/modules/index'
 
 // the directive module should be applied last, after all
 // built-in modules have been applied.
